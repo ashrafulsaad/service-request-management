@@ -2,3 +2,4 @@ Django
 psycopg[binary]
 djangorestframework
 djangorestframework-simplejwt
+python-dotenv
