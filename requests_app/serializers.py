@@ -1,11 +1,14 @@
 from rest_framework import serializers
-from .models import Category,ServiceRequest, Comment, Attachment
+
+from accounts.models import User
+from .models import Category, ServiceRequest, Comment, Attachment
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = "__all__"
+
 
 class ServiceRequestSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,3 +76,22 @@ class AttachmentSerializer(serializers.ModelSerializer):
             )
 
         return value
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "role",
+        ]
+        read_only_fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "role",
+        ]

@@ -13,6 +13,7 @@ from .serializers import (
     ServiceRequestSerializer,
     CommentSerializer,
     AttachmentSerializer,
+    UserSerializer,
 )
 from .permissions import IsAdmin, ServiceRequestPermission
 
@@ -46,6 +47,21 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsAdmin]
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+
+        role = self.request.query_params.get("role")
+
+        if role:
+            queryset = queryset.filter(role=role)
+
+        return queryset
 
 
 class ServiceRequestViewSet(viewsets.ModelViewSet):
