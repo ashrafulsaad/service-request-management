@@ -1,3 +1,4 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
@@ -6,19 +7,33 @@ from .views import (
     CommentViewSet,
     AttachmentViewSet,
     UserViewSet,
+    AdminStatsView,
 )
 
 
 router = DefaultRouter()
 
-router.register("categories", CategoryViewSet)
+router.register(
+    "categories",
+    CategoryViewSet,
+)
+
 router.register(
     "requests",
     ServiceRequestViewSet,
     basename="service-request",
 )
-router.register("comments", CommentViewSet)
-router.register("attachments", AttachmentViewSet)
+
+router.register(
+    "comments",
+    CommentViewSet,
+)
+
+router.register(
+    "attachments",
+    AttachmentViewSet,
+)
+
 router.register(
     "users",
     UserViewSet,
@@ -26,4 +41,10 @@ router.register(
 )
 
 
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path(
+        "admin/stats/",
+        AdminStatsView.as_view(),
+        name="admin-stats",
+    ),
+]

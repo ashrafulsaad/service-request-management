@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "requests_app",
     "django_filters",
+   "drf_spectacular",
 ]
 
 REST_FRAMEWORK = {
@@ -56,6 +57,9 @@ REST_FRAMEWORK = {
         "rest_framework.pagination.PageNumberPagination"
     ),
     "PAGE_SIZE": 10,
+    "DEFAULT_SCHEMA_CLASS": (
+        "drf_spectacular.openapi.AutoSchema"
+    ),
 }
 
 MIDDLEWARE = [
@@ -152,3 +156,15 @@ AUTH_USER_MODEL = "accounts.User"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Government Service Request Management API",
+    "DESCRIPTION": (
+        "REST API for managing citizen service requests, "
+        "categories, officer assignments, comments, attachments, "
+        "and administrative statistics."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}

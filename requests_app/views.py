@@ -1,8 +1,11 @@
+from django.db.models import Count
 from accounts.models import User
+from rest_framework.views import APIView
 
 from django.db.models.deletion import ProtectedError
+from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -16,6 +19,7 @@ from .serializers import (
     UserSerializer,
 )
 from .permissions import IsAdmin, ServiceRequestPermission
+from .filters import ServiceRequestFilter
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -63,12 +67,85 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
         return queryset
 
+class AdminStatsView(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+
+        total = ServiceRequest.objects.count()
+
+        status_counts = (
+            ServiceRequest.objects
+            .values("status")
+            .annotate(count=Count("id"))
+        )
+
+        priority_counts = (
+            ServiceRequest.objects
+            .values("priority")
+            .annotate(count=Count("id"))
+        )
+
+        category_counts = (
+            ServiceRequest.objects
+            .values("category__name")
+            .annotate(count=Count("id"))
+        )
+
+        officer_counts = (
+            ServiceRequest.objects
+            .filter(assigned_officer__isnull=False)
+            .values("assigned_officer__username")
+            .annotate(count=Count("id"))
+        )
+
+        unassigned = ServiceRequest.objects.filter(
+            assigned_officer__isnull=True
+        ).count()
+
+        return Response({
+            "total": total,
+
+            "by_status": {
+                item["status"]: item["count"]
+                for item in status_counts
+            },
+
+            "by_priority": {
+                item["priority"]: item["count"]
+                for item in priority_counts
+            },
+
+            "by_category": {
+                item["category__name"]: item["count"]
+                for item in category_counts
+            },
+
+            "requests_per_officer": {
+                item["assigned_officer__username"]: item["count"]
+                for item in officer_counts
+            },
+
+            "unassigned": unassigned,
+        })
+
 
 class ServiceRequestViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceRequestSerializer
     permission_classes = [ServiceRequestPermission]
 
-    filterset_fields = ["status", "priority", "category"]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+
+    filterset_class = ServiceRequestFilter
+
+    search_fields = ["title"]
+
+    ordering_fields = ["created_at", "priority"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         user = self.request.user
