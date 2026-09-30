@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver" ]
 
 
 # Application definition
@@ -42,12 +42,20 @@ INSTALLED_APPS = [
     "accounts",
     "rest_framework",
     "requests_app",
+    "django_filters",
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ),
+     "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework.pagination.PageNumberPagination"
+    ),
+    "PAGE_SIZE": 10,
 }
 
 MIDDLEWARE = [
@@ -141,3 +149,6 @@ MAILERS = {
     },
 }
 AUTH_USER_MODEL = "accounts.User"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
