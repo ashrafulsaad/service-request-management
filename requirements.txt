@@ -5,3 +5,4 @@ djangorestframework-simplejwt
 python-dotenv
 django-filter
 drf-spectacular
+django-cors-headers
